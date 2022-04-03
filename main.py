@@ -2,13 +2,16 @@ import sys
 import json
 import csv
 from flask import Flask
+from flask import render_template
 app = Flask(__name__)
 
 
 @app.route('/')
 @app.route('/main')
 def main_page():
-    return "Главная страница"
+    param = {}
+    param['title'] = "Главная"
+    return render_template('forum_header.html', **param)
 
 
 if __name__ == '__main__':

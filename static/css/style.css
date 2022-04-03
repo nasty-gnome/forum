@@ -1,0 +1,5 @@
+IMG.logo {
+    float: left; /* Обтекание картинки по левому краю */
+    width: 50px;
+    margin-right: 10px;
+    }
