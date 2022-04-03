@@ -2,7 +2,6 @@ import sys
 import json
 import csv
 from flask import Flask
-from flask import Flask
 app = Flask(__name__)
 
 
