@@ -9,9 +9,7 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/main')
 def main_page():
-    param = {}
-    param['title'] = "Главная"
-    return render_template('main_page.html', **param)
+    return render_template('main_page.html', title="Главная")
 
 
 if __name__ == '__main__':
