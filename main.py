@@ -11,7 +11,7 @@ app = Flask(__name__)
 def main_page():
     param = {}
     param['title'] = "Главная"
-    return render_template('forum_header.html', **param)
+    return render_template('main_page.html', **param)
 
 
 if __name__ == '__main__':
