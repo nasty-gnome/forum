@@ -2,6 +2,27 @@ body {
 background-image: url('background.png');
 }
 
+form.main_buttons
+{
+position: absolute;
+left: 370px;
+width: 300px;
+height: 100px;
+font-size:300%;
+margin-bottom: 50px;
+margin-left: -190px;
+}
+
+form.main_buttons button
+{
+left: 100px;
+width: 300px;
+height: 100px;
+font-size:100%;
+margin-bottom: 50px;
+margin-left: -155px;
+}
+
 h1.main_text {
 color: #ffffff;
 }
