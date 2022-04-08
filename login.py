@@ -1,9 +1,8 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 from forms.login_form import LoginForm
 from flask_login import LoginManager, login_user
 from data import db_session
 from data.users import User
-import os
 from forms.register_form import RegisterForm
 
 app = Flask(__name__)
@@ -16,8 +15,17 @@ def main():
     db_session.global_init("db/users.db")
     db_sess = db_session.create_session()
 
+    @app.route('/register_or_login', methods=['POST', 'GET'])
+    def register_or_login():
+        if request.method == 'POST':
+            if request.form['button'] == 'Вход':
+                return redirect('/login')
+            if request.form['button'] == 'Регистрация':
+                return redirect('/register')
+        return render_template('login_or_register.html')
+
     @app.route('/register', methods=['GET', 'POST'])
-    def reqister():
+    def register():
         form = RegisterForm()
         if form.validate_on_submit():
             if db_sess.query(User).filter(User.login == form.login.data).first():
