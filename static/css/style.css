@@ -23,6 +23,18 @@ margin-bottom: 50px;
 margin-left: -155px;
 }
 
+input.puk
+{
+left: 100px;
+width: 300px;
+height: 100px;
+font-size:100%;
+margin-bottom: 50px;
+margin-left: -155px;
+
+}
+
+
 h1.main_text {
 color: #ffffff;
 }
