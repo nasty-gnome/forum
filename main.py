@@ -18,95 +18,89 @@ login_manager.init_app(app)
 def main():
     db_session.global_init("db/users.db")
     db_sess = db_session.create_session()
+
+    @app.route('/', methods=['GET', 'POST'])
+    @app.route('/main', methods=['GET', 'POST'])
+    def main_page():
+        if request.method == "POST":
+            if request.form['button'] == "Профиль":
+                return redirect('/register_or_login')
+            elif request.form['button'] == "Обсуждения":
+                return redirect('/puk')
+        return render_template('main_page.html', title="Главная")
+
+    @app.route('/register_or_login', methods=['POST', 'GET'])
+    def register_or_login():
+        if request.method == 'POST':
+            if request.form['button'] == 'Вход':
+                return redirect('/login')
+            if request.form['button'] == 'Регистрация':
+                return redirect('/register')
+        return render_template('login_or_register.html')
+
+    @app.route('/register', methods=['GET', 'POST'])
+    def register():
+        form = RegisterForm()
+        if form.validate_on_submit():
+            if db_sess.query(User).filter(User.login == form.login.data).first():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Такой пользователь уже есть")
+            elif form.password.data != form.password_again.data:
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Пароли не совпадают")
+            elif len(form.password.data) < 8:
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Короткий пароль")
+            elif form.password.data.isdigit():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="В пароле нет букв")
+            elif form.password.data.isalpha():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="В пароле нет цифр")
+            elif form.password.data.lower() == form.password.data:
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="В пароле нет букв разных регистров")
+            f = form.photo.data
+            t = f.read()
+            user = User(
+                login=form.login.data,
+                photo=t
+            )
+            user.set_password(form.password.data)
+            db_sess.add(user)
+            db_sess.commit()
+            return redirect('/')
+        return render_template('register.html', title='Регистрация', form=form)
+
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        form = LoginForm()
+        if form.validate_on_submit():
+            user = db_sess.query(User).filter(User.login == form.login.data).first()
+            if user and user.check_password(form.password.data):
+                login_user(user, remember=form.remember_me.data)
+                return redirect("/")
+            return render_template('login.html',
+                                   message="Неправильный логин или пароль",
+                                   form=form)
+        return render_template('login.html', title='Авторизация', form=form)
+
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return db_sess.query(User).get(user_id)
+
+    @app.route('/puk')
+    def puk():
+        return "Пук-пук-пук"
+
     app.run(port=8080, host='127.0.0.1')
-
-
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/main', methods=['GET', 'POST'])
-def main_page():
-    if request.method == "POST":
-        if request.form['button'] == "Профиль":
-            return redirect('/register_or_login')
-        elif request.form['button'] == "Обсуждения":
-            return redirect('/puk')
-    return render_template('main_page.html', title="Главная")
-
-
-@app.route('/register_or_login', methods=['POST', 'GET'])
-def register_or_login():
-    if request.method == 'POST':
-        if request.form['button'] == 'Вход':
-            return redirect('/login')
-        if request.form['button'] == 'Регистрация':
-            return redirect('/register')
-    return render_template('login_or_register.html')
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        if db_sess.query(User).filter(User.login == form.login.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Такой пользователь уже есть")
-        elif form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пароли не совпадают")
-        elif len(form.password.data) < 8:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Короткий пароль")
-        elif form.password.data.isdigit():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="В пароле нет букв")
-        elif form.password.data.isalpha():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="В пароле нет цифр")
-        elif form.password.data.lower() == form.password.data:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="В пароле нет букв разных регистров")
-        f = form.photo.data
-        t = f.read()
-        user = User(
-            login=form.login.data,
-            photo=t
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        return redirect('/')
-    return render_template('register.html', title='Регистрация', form=form)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = db_sess.query(User).filter(User.login == form.login.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user, remember=form.remember_me.data)
-            return redirect("/")
-        return render_template('login.html',
-                               message="Неправильный логин или пароль",
-                               form=form)
-    return render_template('login.html', title='Авторизация', form=form)
-
-    app.run(port=8080, host='127.0.0.1')
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return db_sess.query(User).get(user_id)
-
-
-@app.route('/puk')
-def puk():
-    return "Пук-пук-пук"
 
 
 if __name__ == '__main__':
