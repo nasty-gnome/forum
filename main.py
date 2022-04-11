@@ -91,7 +91,6 @@ def main():
                                    form=form)
         return render_template('login.html', title='Авторизация', form=form)
 
-
     @login_manager.user_loader
     def load_user(user_id):
         return db_sess.query(User).get(user_id)
@@ -100,6 +99,22 @@ def main():
     def puk():
         return "Пук-пук-пук"
 
+    @app.route('/profile', methods=['GET', 'POST'])
+    def profile():
+        last_threads = []
+        profile_name = "Здесь имя профиля"
+        post = "Тут какое-нибудь прозвище"
+        for i in range(12):
+            last_threads.append({"thread_name": "Свободное место",
+                                 "thread_link": "Свободное место для ссылки"})
+        if request.method == "POST":
+            if request.form['button'] == "Главная":
+                return redirect('/main')
+            elif request.form['button'] == "Обсуждения":
+                return redirect('/puk')
+        return render_template('profile.html', title=profile_name,
+                               profile_name=profile_name, last_threads=last_threads,
+                               post=post)
     app.run(port=8080, host='127.0.0.1')
 
 

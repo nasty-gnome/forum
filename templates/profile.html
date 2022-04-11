@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+{% extends "forum_header.html" %}
+
+{% block content %}
+    <h1 class="profile_text">{{ profile_name }}</h1>
+    <form class="main_buttons" method="post">
+        <input type="submit" class="btn btn-dark puk" value="Главная" name="button">
+        <input type="submit" class="btn btn-dark puk" value="Обсуждения" name="button">
+    </form>
+    <table class="table table-bordered table-inverse table-dark" style="width: auto; margin-left: 760px; position: absolute;">
+      <thead>
+        <tr>
+          <th>Название треда</th>
+          <th>Ссылка на тред</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for elem in last_threads %}
+        <tr>
+          <td>{{ elem["thread_name"] }}</td>
+          <td>{{ elem["thread_link"] }}</td>
+        </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+    <img src="/static/img/profile_default.png" class="profile_image">
+    <h1 class="status_text">{{ post }}</h1>
+{% endblock %}
+</body>
+</html>
