@@ -6,7 +6,8 @@ from data.users import User
 from forms.register_form import RegisterForm
 from forms.login_form import LoginForm
 from flask import Flask
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, current_user, login_required, \
+    logout_user
 from flask import render_template, request, redirect, Blueprint
 
 app = Flask(__name__)
@@ -24,10 +25,19 @@ def main():
     def main_page():
         if request.method == "POST":
             if request.form['button'] == "Профиль":
-                return redirect('/register_or_login')
+                if current_user.is_authenticated:
+                    return redirect('profile')
+                else:
+                    return redirect('/register_or_login')
             elif request.form['button'] == "Обсуждения":
-                return redirect('/puk')
+                return redirect('/threads')
         return render_template('main_page.html', title="Главная")
+
+    @app.route('/logout')
+    @login_required
+    def logout():
+        logout_user()
+        return redirect("/")
 
     @app.route('/register_or_login', methods=['POST', 'GET'])
     def register_or_login():
@@ -95,9 +105,55 @@ def main():
     def load_user(user_id):
         return db_sess.query(User).get(user_id)
 
-    @app.route('/puk')
-    def puk():
-        return "Пук-пук-пук"
+    @app.route('/threads')
+    def threads():
+        list_of_threads = []
+        for i in range(50):
+            author_picture = None
+            list_of_threads.append({"thread_name": f"Какое-то имя {i}",
+                                    "author_picture": author_picture,
+                                    "author_name": "Имя автора и прозвище",
+                                    "thread_image": None,
+                                    "thread_text": f"{i} тут текст треда и"
+                                                   f" всякое такое {i} нужно "
+                                                   f"написать побольше для "
+                                                   f"наглядности, поэтому вот "
+                                                   f"да{i}",
+                                    "first_answer": {"answerer_name": f"1Тут имя и"
+                                                                      " через "
+                                                                      "запятую "
+                                                                      "прозвище",
+                                                     "answer_text": "Здесь должен "
+                                                                    "быть какой-то "
+                                                                    "текст ответа "
+                                                                    "в тред"},
+                                    "second_answer": {"answerer_name": f"2Тут имя "
+                                                                       f"и через "
+                                                                       "запятую "
+                                                                       "прозвище",
+                                                      "answer_text": "Здесь должен "
+                                                                     "быть какой-то "
+                                                                     "текст ответа "
+                                                                     "в тред"},
+                                    "third_answer": {"answerer_name": f"3Тут имя "
+                                                                      f"и через "
+                                                                      "запятую "
+                                                                      "прозвище",
+                                                     "answer_text": "Здесь должен "
+                                                                    "быть какой-то "
+                                                                    "текст ответа "
+                                                                    "в тред"},
+                                    "fourth_answer": {"answerer_name": f"4Тут имя "
+                                                                       f"и через "
+                                                                       "запятую "
+                                                                       "прозвище",
+                                                      "answer_text": "Здесь должен "
+                                                                     "быть какой-то "
+                                                                     "текст ответа "
+                                                                     "в тред"}
+                                    })
+        return render_template('threads.html', title="Треды",
+                               list_of_threads=list_of_threads)
 
     @app.route('/profile', methods=['GET', 'POST'])
     def profile():
@@ -111,10 +167,11 @@ def main():
             if request.form['button'] == "Главная":
                 return redirect('/main')
             elif request.form['button'] == "Обсуждения":
-                return redirect('/puk')
+                return redirect('/threads')
         return render_template('profile.html', title=profile_name,
                                profile_name=profile_name, last_threads=last_threads,
                                post=post)
+
     app.run(port=8080, host='127.0.0.1')
 
 
