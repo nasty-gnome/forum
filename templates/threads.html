@@ -17,13 +17,36 @@
     </div>
     <div class="thread_text">{{ thread["thread_text"] }}</div>
     <br>
+    <br>
 
     <div class="answerer_signature">
-    <img src="/static/img/profile_default.png" class="answerer_image">
+    <img src="/static/img/profile_default.png" class="author_image">
     <h4>{{ thread["first_answer"]["answerer_name"] }}</h4>
     </div>
     <div class="answer_text">{{ thread["first_answer"]["answer_text"] }}</div>
     <br>
+
+    <div class="answerer_signature">
+    <img src="/static/img/profile_default.png" class="author_image">
+    <h4>{{ thread["second_answer"]["answerer_name"] }}</h4>
+    </div>
+    <div class="answer_text">{{ thread["second_answer"]["answer_text"] }}</div>
+    <br>
+
+    <div class="answerer_signature">
+    <img src="/static/img/profile_default.png" class="author_image">
+    <h4>{{ thread["third_answer"]["answerer_name"] }}</h4>
+    </div>
+    <div class="answer_text">{{ thread["third_answer"]["answer_text"] }}</div>
+    <br>
+
+    <div class="answerer_signature">
+    <img src="/static/img/profile_default.png" class="author_image">
+    <h4>{{ thread["fourth_answer"]["answerer_name"] }}</h4>
+    </div>
+    <div class="answer_text">{{ thread["fourth_answer"]["answer_text"] }}</div>
+    <br>
+    <input type="submit" class="btn btn-dark puk thread_button" value="В тред" name="button">
 {%endfor%}
 
 {% endblock %}

@@ -108,7 +108,7 @@ def main():
     @app.route('/threads')
     def threads():
         list_of_threads = []
-        for i in range(50):
+        for i in range(100):
             author_picture = None
             list_of_threads.append({"thread_name": f"Какое-то имя {i}",
                                     "author_picture": author_picture,
