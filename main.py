@@ -8,6 +8,7 @@ from forms.login_form import LoginForm
 from flask import Flask
 from flask_login import LoginManager, login_user, current_user, login_required, \
     logout_user
+from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from flask import render_template, request, redirect, Blueprint
 
 app = Flask(__name__)
