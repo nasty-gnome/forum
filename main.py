@@ -158,7 +158,10 @@ def main():
     @app.route('/profile', methods=['GET', 'POST'])
     def profile():
         last_threads = []
-        profile_name = "Здесь имя профиля"
+        profile_name = current_user.login
+        f = open('static/img/profile.png', 'wb')
+        f.write(current_user.photo)
+        f.close()
         post = "Тут какое-нибудь прозвище"
         for i in range(12):
             last_threads.append({"thread_name": "Свободное место",
