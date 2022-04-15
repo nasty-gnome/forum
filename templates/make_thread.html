@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+{% extends "forum_header.html" %}
+
+{% block content %}
+<form class="login_form" method="post" enctype="multipart/form-data">
+    <div class="form-group" style="font-size:200%; color: #ffffff;">
+        <label for="thread_name">Название треда</label>
+        <input type="text" name="thread_name" maxlength="30" style="width: 100%">
+    </div>
+    <div class="form-group" style="font-size:200%; color: #ffffff;">
+        <label for="thread_text">Текст треда</label>
+        <textarea class="form-control" name="thread_text" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="picture">Изображение (по желанию)</label>
+        <input type="file" class="form-control-file" id="picture" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">Создать тред</button>
+</form>
+{% endblock %}
+</body>
+</html>

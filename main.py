@@ -105,7 +105,7 @@ def main():
     def load_user(user_id):
         return db_sess.query(User).get(user_id)
 
-    @app.route('/threads')
+    @app.route('/threads', methods=['GET', 'POST'])
     def threads():
         list_of_threads = []
         for i in range(100):
@@ -152,8 +152,27 @@ def main():
                                                                      "текст ответа "
                                                                      "в тред"}
                                     })
+        if request.method == "POST":
+            if request.form['button'] == "Главная":
+                return redirect('/main')
+            elif request.form['button'] == "Профиль":
+                return redirect('/profile')
+            elif request.form['button'] == "Создать тред":
+                return redirect('/make_thread')
+            elif "В тред" in request.form['button']:
+                #print(request.form['button'][-1])
+                return redirect('/main')
         return render_template('threads.html', title="Треды",
                                list_of_threads=list_of_threads)
+
+    @app.route('/make_thread', methods=['GET', 'POST'])
+    def make_thread():
+        if request.method == "POST":
+            f = request.files['file']
+            thread_name = request.form['thread_name']
+            thread_text = request.form['thread_text']
+            return "Форма отправлена"
+        return render_template('make_thread.html', title="Создать тред")
 
     @app.route('/profile', methods=['GET', 'POST'])
     def profile():

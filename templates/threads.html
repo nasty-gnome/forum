@@ -9,6 +9,15 @@
 
 {% block content %}
 
+<br>
+<form class="main_buttons" method="post" style=”margin-top:200px”>
+    <input type="submit" class="btn btn-dark puk" value="Главная" name="button">
+    <input type="submit" class="btn btn-dark puk" value="Профиль" name="button">
+</form>
+<form class="make_thread_button" method="post" style=”margin-top:200px”>
+    <input type="submit" class="btn btn-dark" value="Создать тред" name="button"
+           style="width: 300px; height: 100px; font-size:100%;">
+</form>
 {% for thread in list_of_threads %}
     <h2 class="thread_name">{{ thread["thread_name"] }}</h2>
     <div class="author_signature">
@@ -46,7 +55,10 @@
     </div>
     <div class="answer_text">{{ thread["fourth_answer"]["answer_text"] }}</div>
     <br>
-    <input type="submit" class="btn btn-dark puk thread_button" value="В тред" name="button">
+    <form method="post">
+    <input type="submit" class="btn btn-dark puk thread_button" name="button"
+           value="В тред {{ loop.index }}">
+    </form>
 {%endfor%}
 
 {% endblock %}
