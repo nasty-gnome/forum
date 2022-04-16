@@ -155,9 +155,15 @@ def main():
             elif request.form['button'] == "Профиль":
                 return redirect('/profile')
             elif request.form['button'] == "Создать тред":
-                return redirect('/make_thread')
+                if current_user.is_authenticated:
+                    return redirect('/make_thread')
+                else:
+                    return redirect('/register_or_login')
             elif "В тред" in request.form['button']:
-                return redirect('/thread')
+                if current_user.is_authenticated:
+                    return redirect('/thread')
+                else:
+                    return redirect('/register_or_login')
         return render_template('threads.html', title="Треды",
                                list_of_threads=list_of_threads)
 
@@ -203,7 +209,7 @@ def main():
             db_sess.add(thread)
             db_sess.add(thread_new)
             db_sess.commit()
-            return "Форма отправлена"
+            return 'Форма отправлена'
         return render_template('make_thread.html', title="Создать тред")
 
     @app.route('/profile', methods=['GET', 'POST'])
