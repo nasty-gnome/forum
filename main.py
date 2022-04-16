@@ -1,14 +1,17 @@
-import sys
-import json
-import csv
 from data import db_session
 from data.users import User
+from data.threads import Threads
 from forms.register_form import RegisterForm
 from forms.login_form import LoginForm
 from flask import Flask
 from flask_login import LoginManager, login_user, current_user, login_required, \
     logout_user
-from flask import render_template, request, redirect, Blueprint
+from flask import render_template, request, redirect
+import sqlite3
+import sqlalchemy
+from flask_login import UserMixin
+from sqlalchemy_serializer import SerializerMixin
+from data.db_session import SqlAlchemyBase
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'key'
@@ -17,7 +20,7 @@ login_manager.init_app(app)
 
 
 def main():
-    db_session.global_init("db/users.db")
+    db_session.global_init("db/main.db")
     db_sess = db_session.create_session()
 
     @app.route('/', methods=['GET', 'POST'])
@@ -73,6 +76,7 @@ def main():
                                        form=form,
                                        message="В пароле нет цифр")
             elif form.password.data.lower() == form.password.data:
+                db_sess.close_all()
                 return render_template('register.html', title='Регистрация',
                                        form=form,
                                        message="В пароле нет букв разных регистров")
@@ -107,50 +111,43 @@ def main():
 
     @app.route('/threads', methods=['GET', 'POST'])
     def threads():
+        that = db_sess.query(Threads).all()
         list_of_threads = []
-        for i in range(100):
-            author_picture = None
-            list_of_threads.append({"thread_name": f"Какое-то имя {i}",
-                                    "author_picture": author_picture,
-                                    "author_name": "Имя автора и прозвище",
-                                    "thread_image": None,
-                                    "thread_text": f"{i} тут текст треда и"
-                                                   f" всякое такое {i} нужно "
-                                                   f"написать побольше для "
-                                                   f"наглядности, поэтому вот "
-                                                   f"да{i}",
-                                    "first_answer": {"answerer_name": f"1Тут имя и"
-                                                                      " через "
-                                                                      "запятую "
-                                                                      "прозвище",
-                                                     "answer_text": "Здесь должен "
-                                                                    "быть какой-то "
-                                                                    "текст ответа "
-                                                                    "в тред"},
-                                    "second_answer": {"answerer_name": f"2Тут имя "
-                                                                       f"и через "
-                                                                       "запятую "
-                                                                       "прозвище",
-                                                      "answer_text": "Здесь должен "
-                                                                     "быть какой-то "
-                                                                     "текст ответа "
-                                                                     "в тред"},
-                                    "third_answer": {"answerer_name": f"3Тут имя "
-                                                                      f"и через "
-                                                                      "запятую "
-                                                                      "прозвище",
-                                                     "answer_text": "Здесь должен "
-                                                                    "быть какой-то "
-                                                                    "текст ответа "
-                                                                    "в тред"},
-                                    "fourth_answer": {"answerer_name": f"4Тут имя "
-                                                                       f"и через "
-                                                                       "запятую "
-                                                                       "прозвище",
-                                                      "answer_text": "Здесь должен "
-                                                                     "быть какой-то "
-                                                                     "текст ответа "
-                                                                     "в тред"}
+        for elem in that:
+            photo = db_sess.query(User).filter(elem.author == User.login).first().photo
+            if photo:
+                f = open('static/img/profile.png', 'wb')
+                f.write(photo)
+                f.close()
+            if elem.first_answer is None:
+                elem.first_answer = '-'
+            if elem.second_answer is None:
+                elem.second_answer = '-'
+            if elem.third_answer is None:
+                elem.third_answer = '-'
+            if elem.forth_answer is None:
+                elem.forth_answer = '-'
+            if elem.first_author is None:
+                elem.first_author = '-'
+            if elem.second_author is None:
+                elem.second_author = '-'
+            if elem.third_author is None:
+                elem.third_author = '-'
+            if elem.forth_author is None:
+                elem.forth_author = '-'
+            list_of_threads.append({"thread_name": elem.title,
+                                    "author_picture": None,
+                                    "author_name": elem.author,
+                                    "thread_image": elem.photo,
+                                    "thread_text": elem.text,
+                                    "first_answer": {"answerer_name": elem.first_answer,
+                                                     "answer_text": elem.first_author},
+                                    "second_answer": {"answerer_name": elem.second_answer,
+                                                      "answer_text": elem.second_author},
+                                    "third_answer": {"answerer_name": elem.third_answer,
+                                                     "answer_text": elem.third_author},
+                                    "fourth_answer": {"answerer_name": elem.forth_answer,
+                                                      "answer_text": elem.forth_author}
                                     })
         if request.method == "POST":
             if request.form['button'] == "Главная":
@@ -160,8 +157,7 @@ def main():
             elif request.form['button'] == "Создать тред":
                 return redirect('/make_thread')
             elif "В тред" in request.form['button']:
-                #print(request.form['button'][-1])
-                return redirect('/main')
+                return redirect('/thread')
         return render_template('threads.html', title="Треды",
                                list_of_threads=list_of_threads)
 
@@ -169,8 +165,44 @@ def main():
     def make_thread():
         if request.method == "POST":
             f = request.files['file']
+            t = f.read()
             thread_name = request.form['thread_name']
             thread_text = request.form['thread_text']
+            if len(t) != 0:
+                thread_new = Threads(title=thread_name,
+                                     author=current_user.login,
+                                     text=thread_text,
+                                     photo=t)
+            else:
+                thread_new = Threads(title=thread_name,
+                                     author=current_user.login,
+                                     text=thread_text)
+
+            class Thread(SqlAlchemyBase, UserMixin, SerializerMixin):
+                __tablename__ = thread_name
+                id = sqlalchemy.Column(sqlalchemy.Integer,
+                                       primary_key=True, autoincrement=True)
+                author = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+                text = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+                photo = sqlalchemy.Column(sqlalchemy.BLOB)
+
+            conn = sqlite3.connect('db/main.db')
+            cur = conn.cursor()
+            q = f"CREATE TABLE IF NOT EXISTS {thread_name}(id INTEGER PRIMARY KEY AUTOINCREMENT," \
+                f"author STRING,text STRING,photo BLOB);"
+            cur.execute(q)
+            conn.commit()
+            if len(t) != 0:
+                thread = Thread(author=current_user.login,
+                                text=thread_text,
+                                photo=t)
+            else:
+                thread = Thread(author=current_user.login,
+                                text=thread_text)
+
+            db_sess.add(thread)
+            db_sess.add(thread_new)
+            db_sess.commit()
             return "Форма отправлена"
         return render_template('make_thread.html', title="Создать тред")
 
