@@ -183,32 +183,14 @@ def main():
                 thread_new = Threads(title=thread_name,
                                      author=current_user.login,
                                      text=thread_text)
-
-            class Thread(SqlAlchemyBase, UserMixin, SerializerMixin):
-                __tablename__ = thread_name
-                id = sqlalchemy.Column(sqlalchemy.Integer,
-                                       primary_key=True, autoincrement=True)
-                author = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-                text = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-                photo = sqlalchemy.Column(sqlalchemy.BLOB)
-
+            db_sess.add(thread_new)
+            db_sess.commit()
             conn = sqlite3.connect('db/main.db')
             cur = conn.cursor()
             q = f"CREATE TABLE IF NOT EXISTS {thread_name}(id INTEGER PRIMARY KEY AUTOINCREMENT," \
                 f"author STRING,text STRING,photo BLOB);"
             cur.execute(q)
             conn.commit()
-            if len(t) != 0:
-                thread = Thread(author=current_user.login,
-                                text=thread_text,
-                                photo=t)
-            else:
-                thread = Thread(author=current_user.login,
-                                text=thread_text)
-
-            db_sess.add(thread)
-            db_sess.add(thread_new)
-            db_sess.commit()
             return 'Форма отправлена'
         return render_template('make_thread.html', title="Создать тред")
 
