@@ -187,7 +187,8 @@ def main():
             db_sess.commit()
             conn = sqlite3.connect('db/main.db')
             cur = conn.cursor()
-            q = f"CREATE TABLE IF NOT EXISTS {thread_name}(id INTEGER PRIMARY KEY AUTOINCREMENT," \
+            thread_name_t = '_'.join(thread_name.split(' '))
+            q = f"CREATE TABLE IF NOT EXISTS {thread_name_t}(id INTEGER PRIMARY KEY AUTOINCREMENT," \
                 f"author STRING,text STRING,photo BLOB);"
             cur.execute(q)
             conn.commit()
