@@ -21,3 +21,4 @@ class Threads(SqlAlchemyBase, UserMixin, SerializerMixin):
     third_author = sqlalchemy.Column(sqlalchemy.Integer)
     forth_answer = sqlalchemy.Column(sqlalchemy.String)
     forth_author = sqlalchemy.Column(sqlalchemy.Integer)
+    all_answers = sqlalchemy.Column(sqlalchemy.JSON)

@@ -9,8 +9,7 @@ from flask_login import LoginManager, login_user, current_user, login_required, 
 from flask import render_template, request, redirect, url_for
 import sqlite3
 import base64
-from data.the_thread import create_thread_table
-import sqlalchemy
+import json
 from flask_login import UserMixin
 from sqlalchemy_serializer import SerializerMixin
 from data.db_session import SqlAlchemyBase
@@ -139,7 +138,10 @@ def main():
             if elem.forth_author is None:
                 elem.forth_author = '-'
             list_of_threads.append({"thread_name": elem.title,
-                                    "author_picture": None,
+                                    "author_picture": base64.
+                                   b64encode(db_sess.query(User).
+                                             filter_by(login=elem.author).all()[0].
+                                             photo).decode('utf-8'),
                                     "author_name": elem.author,
                                     "thread_image": elem.photo,
                                     "thread_text": elem.text,
@@ -182,15 +184,18 @@ def main():
             t = f.read()
             thread_name = request.form['thread_name']
             thread_text = request.form['thread_text']
+            answers = {'answers': []}
             if len(t) != 0:
                 thread_new = Threads(title=thread_name,
                                      author=current_user.login,
                                      text=thread_text,
-                                     photo=t)
+                                     photo=t,
+                                     all_answers=json.dumps(answers))
             else:
                 thread_new = Threads(title=thread_name,
                                      author=current_user.login,
-                                     text=thread_text)
+                                     text=thread_text,
+                                     all_answers=json.dumps(answers))
             db_sess.add(thread_new)
             db_sess.commit()
             conn = sqlite3.connect('db/main.db')
@@ -211,17 +216,27 @@ def main():
         thread_head = {"author": that.author,
                        "avatar": base64.b64encode(users.photo).decode('utf-8'),
                        "text": that.text, "photo": that.photo}
-        print(name)
-        this_table = create_thread_table(name)
-        print(this_table)
-        this_thread = db_sess.query(this_table).all()
-
+        answers_dict = json.loads(that.all_answers)
+        thread_content = answers_dict["answers"]
+        for elem in thread_content:
+            elem["avatar"] = base64.b64encode(db_sess.query(User).
+                                              filter_by(login=elem["author"]).
+                                              all()[0].photo).decode('utf-8')
         if request.method == "POST":
             if "Ответить" in request.form['button']:
                 listener = request.form['button'][9:]
                 text = f"{listener},\n {request.form['answer']}"
+                answers_dict["answers"].append({"author": current_user.login,
+                                                "text": text, "photo": None})
+                e = db_sess.query(Threads).get(number)
+                e.all_answers = json.dumps(answers_dict)
+                db_sess.add(e)
+                db_sess.commit()
+                    #json.dumps(answers_dict)
+
         return render_template('the_thread.html', title=name,
-                               thread_head=thread_head)
+                               thread_head=thread_head,
+                               thread_content=thread_content)
 
     @app.route('/profile', methods=['GET', 'POST'])
     def profile():

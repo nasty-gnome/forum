@@ -18,6 +18,15 @@
 <form method="post">
     <input type="submit" class="btn btn-dark answer_button" name="button"
                value="Ответить {{ thread_head['author'] }}">
+    <br>
+    {% for answer in thread_content %}
+        <div class="answerer_signature">
+        <img src="data:image/jpeg;base64,{{ answer['avatar'] }}" class="author_image">
+        <h4>{{ answer["author"] }}</h4>
+        </div>
+        <div class="answer_text">{{ answer["text"] }}</div>
+        <br>
+    {%endfor%}
 
     <textarea class="form-control"
               style="margin-top: 30%; width: 60%; position: fixed;" name="answer"
