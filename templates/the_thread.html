@@ -5,6 +5,26 @@
     <title>{{ title }}</title>
 </head>
 <body>
+{% extends "forum_header.html" %}
 
+{% block content %}
+<h2 class="thread_name"> {{ title }}</h2>
+<div class="author_signature">
+    <img src="data:image/jpeg;base64,{{ thread_head['avatar'] }}" class="author_image">
+    <h4>{{ thread_head["author"] }}</h4>
+</div>
+<div class="thread_text">{{ thread_head["text"] }}</div>
+<br>
+<form method="post">
+    <input type="submit" class="btn btn-dark answer_button" name="button"
+               value="Ответить {{ thread_head['author'] }}">
+
+    <textarea class="form-control"
+              style="margin-top: 30%; width: 60%; position: fixed;" name="answer"
+              rows="3" placeholder="Введите текст и через кнопку ответа выберите поулчателя">
+    </textarea>
+</form>
+<br>
+{% endblock %}
 </body>
 </html>

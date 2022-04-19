@@ -6,8 +6,10 @@ from forms.login_form import LoginForm
 from flask import Flask
 from flask_login import LoginManager, login_user, current_user, login_required, \
     logout_user
-from flask import render_template, request, redirect
+from flask import render_template, request, redirect, url_for
 import sqlite3
+import base64
+from data.the_thread import create_thread_table
 import sqlalchemy
 from flask_login import UserMixin
 from sqlalchemy_serializer import SerializerMixin
@@ -114,7 +116,8 @@ def main():
         that = db_sess.query(Threads).all()
         list_of_threads = []
         for elem in that:
-            photo = db_sess.query(User).filter(elem.author == User.login).first().photo
+            photo = db_sess.query(User).filter(
+                elem.author == User.login).first().photo
             if photo:
                 f = open('static/img/profile.png', 'wb')
                 f.write(photo)
@@ -140,14 +143,18 @@ def main():
                                     "author_name": elem.author,
                                     "thread_image": elem.photo,
                                     "thread_text": elem.text,
-                                    "first_answer": {"answerer_name": elem.first_answer,
-                                                     "answer_text": elem.first_author},
-                                    "second_answer": {"answerer_name": elem.second_answer,
-                                                      "answer_text": elem.second_author},
-                                    "third_answer": {"answerer_name": elem.third_answer,
-                                                     "answer_text": elem.third_author},
-                                    "fourth_answer": {"answerer_name": elem.forth_answer,
-                                                      "answer_text": elem.forth_author}
+                                    "first_answer": {
+                                        "answerer_name": elem.first_answer,
+                                        "answer_text": elem.first_author},
+                                    "second_answer": {
+                                        "answerer_name": elem.second_answer,
+                                        "answer_text": elem.second_author},
+                                    "third_answer": {
+                                        "answerer_name": elem.third_answer,
+                                        "answer_text": elem.third_author},
+                                    "fourth_answer": {
+                                        "answerer_name": elem.forth_answer,
+                                        "answer_text": elem.forth_author}
                                     })
         if request.method == "POST":
             if request.form['button'] == "Главная":
@@ -161,7 +168,8 @@ def main():
                     return redirect('/register_or_login')
             elif "В тред" in request.form['button']:
                 if current_user.is_authenticated:
-                    return redirect('/thread')
+                    return redirect(url_for('the_thread',
+                                            number=request.form['button'][-1]))
                 else:
                     return redirect('/register_or_login')
         return render_template('threads.html', title="Треды",
@@ -194,6 +202,26 @@ def main():
             conn.commit()
             return 'Форма отправлена'
         return render_template('make_thread.html', title="Создать тред")
+
+    @app.route('/the_thread/<number>', methods=['GET', 'POST'])
+    def the_thread(number):
+        that = db_sess.query(Threads).filter_by(id=int(number)).all()[0]
+        name = that.title
+        users = db_sess.query(User).filter_by(login=that.author).all()[0]
+        thread_head = {"author": that.author,
+                       "avatar": base64.b64encode(users.photo).decode('utf-8'),
+                       "text": that.text, "photo": that.photo}
+        print(name)
+        this_table = create_thread_table(name)
+        print(this_table)
+        this_thread = db_sess.query(this_table).all()
+
+        if request.method == "POST":
+            if "Ответить" in request.form['button']:
+                listener = request.form['button'][9:]
+                text = f"{listener},\n {request.form['answer']}"
+        return render_template('the_thread.html', title=name,
+                               thread_head=thread_head)
 
     @app.route('/profile', methods=['GET', 'POST'])
     def profile():
