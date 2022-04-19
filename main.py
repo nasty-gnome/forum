@@ -1,3 +1,5 @@
+import os
+
 from data import db_session
 from data.users import User
 from data.threads import Threads
@@ -9,11 +11,6 @@ from flask_login import LoginManager, login_user, current_user, login_required, 
 from flask import render_template, request, redirect, url_for
 import sqlite3
 import base64
-from data.the_thread import create_thread_table
-import sqlalchemy
-from flask_login import UserMixin
-from sqlalchemy_serializer import SerializerMixin
-from data.db_session import SqlAlchemyBase
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'key'
@@ -253,7 +250,8 @@ def main():
                                profile_name=profile_name, last_threads=last_threads,
                                post=post)
 
-    app.run(port=8080, host='127.0.0.1')
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 if __name__ == '__main__':
