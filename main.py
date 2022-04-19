@@ -200,6 +200,15 @@ def main():
                 f"author STRING,text STRING,photo BLOB);"
             cur.execute(q)
             conn.commit()
+            if len(t) != 0:
+                q = f"""INSERT INTO {thread_name_t} (author, text, photo) VALUES 
+                (?, ?, ?)"""
+                cor = (current_user.login, thread_text, t)
+                cur.execute(q, cor)
+            else:
+                q = f"INSERT INTO {thread_name_t}(author, text) VALUES('{current_user.login}', '{thread_text}')"
+                cur.execute(q)
+            conn.commit()
             return 'Форма отправлена'
         return render_template('make_thread.html', title="Создать тред")
 
@@ -212,10 +221,11 @@ def main():
                        "avatar": base64.b64encode(users.photo).decode('utf-8'),
                        "text": that.text, "photo": that.photo}
         print(name)
-        this_table = create_thread_table(name)
-        print(this_table)
-        this_thread = db_sess.query(this_table).all()
-
+        conn = sqlite3.connect('db/main.db')
+        cur = conn.cursor()
+        q = f"SELECT * from {name}"
+        result = cur.execute(q).fetchall()
+        print(result)
         if request.method == "POST":
             if "Ответить" in request.form['button']:
                 listener = request.form['button'][9:]
