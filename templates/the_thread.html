@@ -10,29 +10,63 @@
 {% block content %}
 <h2 class="thread_name"> {{ title }}</h2>
 <div class="author_signature">
-    <img src="data:image/jpeg;base64,{{ thread_head['avatar'] }}" class="author_image">
+    <img src="data:image/jpeg;base64,{{ thread_head['avatar'] }}" class="author_image" style="width: 60px; height: 60px">
     <h4>{{ thread_head["author"] }}</h4>
 </div>
-<div class="thread_text">{{ thread_head["text"] }}</div>
+<div class="thread_text">
+    {{ thread_head["text"] }}
+    {% if thread_head['photo'] %}
+            <img src="data:image/jpeg;base64,{{ thread_head['photo'] }}" class="thread_image" style="height: 300px; margin-left: 20%">
+    {% endif %}
+</div>
 <br>
-<form method="post">
-    <input type="submit" class="btn btn-dark answer_button" name="button"
+<form method="post" enctype="multipart/form-data">
+    <input type="submit" class="btn btn-dark" name="button"
                value="Ответить {{ thread_head['author'] }}">
     <br>
+    <br>
+    {% if thread_head['photo'] %}
+        <textarea class="form-control"
+                  style="margin-top: 5%; width: 60%; position: fixed;" name="answer"
+                  rows="3" placeholder="Введите текст и через кнопку ответа выберите получателя">
+        </textarea>
+        <div class="form-group">
+            <label for="picture"><font color="white" style="margin-top: 5%; margin-left: 60%; position: fixed;">Изображение (по желанию)</font></label>
+            <font color="white"><input type="file" style="margin-top: 6%; margin-left: 60%; position: fixed;" class="form-control-file" id="picture" name="file"></font>
+        </div>
+    {% else %}
+        <textarea class="form-control"
+                  style="margin-top: 29%; width: 60%; position: fixed;" name="answer"
+                  rows="3" placeholder="Введите текст и через кнопку ответа выберите получателя">
+        </textarea>
+        <div class="form-group">
+            <label for="picture"><font color="white" style="margin-top: 29%; margin-left: 60%; position: fixed;">Изображение (по желанию)</font></label>
+            <font color="white"><input type="file" style="margin-top: 30%; margin-left: 60%; position: fixed;" class="form-control-file" id="picture" name="file"></font>
+        </div>
+    {% endif %}
     {% for answer in thread_content %}
         <div class="answerer_signature">
-        <img src="data:image/jpeg;base64,{{ answer['avatar'] }}" class="author_image">
+        <img src="data:image/jpeg;base64,{{ answer['avatar'] }}" class="author_image" style="width: 60px; height: 60px">
         <h4>{{ answer["author"] }}</h4>
         </div>
-        <div class="answer_text">{{ answer["text"] }}</div>
+        <div class="answer_text">
+            {{ answer["text"] }}
+            {% if answer['photo'] %}
+                <img src="data:image/jpeg;base64,{{ answer['photo'] }}" class="thread_image" style="height: 300px; margin-left: 20%">
+            {% endif %}
+        </div>
+        <br>
+        <input type="submit" class="btn btn-dark" name="button"
+               value="Ответить {{ answer['author'] }}">
+        <br>
         <br>
     {%endfor%}
-
-    <textarea class="form-control"
-              style="margin-top: 30%; width: 60%; position: fixed;" name="answer"
-              rows="3" placeholder="Введите текст и через кнопку ответа выберите поулчателя">
-    </textarea>
 </form>
+<br>
+<br>
+<br>
+<br>
+<br>
 <br>
 {% endblock %}
 </body>

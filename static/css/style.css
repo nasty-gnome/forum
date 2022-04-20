@@ -42,14 +42,6 @@ font-size:100%;
 margin-left: 10px;
 }
 
-input.answer_button
-{
-width: 150px;
-height: 50px;
-font-size:100%;
-margin-left: 100px;
-}
-
 form.make_thread_button
 {
 position: fixed;
@@ -132,8 +124,14 @@ IMG.author_image {
      display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 5%;
-  height: 5%;
   float: left;
+  margin: 0px 12px 0px 0px;
+    }
+
+IMG.thread_image {
+     display: block;
+  margin-left: auto;
+  margin-right: auto;
+  float: right;
   margin: 0px 12px 0px 0px;
     }

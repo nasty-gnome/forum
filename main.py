@@ -137,13 +137,19 @@ def main():
                 elem.third_author = '-'
             if elem.forth_author is None:
                 elem.forth_author = '-'
+            if db_sess.query(Threads).filter_by(title=elem.title).all()[0].photo:
+                thread_image = base64.b64encode(db_sess.query(Threads).
+                                                filter_by(title=elem.title).
+                                                all()[0].photo).decode('utf-8')
+            else:
+                thread_image = None
             list_of_threads.append({"thread_name": elem.title,
                                     "author_picture": base64.
                                    b64encode(db_sess.query(User).
                                              filter_by(login=elem.author).all()[0].
                                              photo).decode('utf-8'),
                                     "author_name": elem.author,
-                                    "thread_image": elem.photo,
+                                    "thread_image": thread_image,
                                     "thread_text": elem.text,
                                     "first_answer": {
                                         "answerer_name": elem.first_answer,
@@ -213,9 +219,14 @@ def main():
         that = db_sess.query(Threads).filter_by(id=int(number)).all()[0]
         name = that.title
         users = db_sess.query(User).filter_by(login=that.author).all()[0]
+        if that.photo:
+            photo = base64.b64encode(that.photo).decode('utf-8')
+        else:
+            photo = None
         thread_head = {"author": that.author,
                        "avatar": base64.b64encode(users.photo).decode('utf-8'),
-                       "text": that.text, "photo": that.photo}
+                       "text": that.text,
+                       "photo": photo}
         answers_dict = json.loads(that.all_answers)
         thread_content = answers_dict["answers"]
         for elem in thread_content:
@@ -226,13 +237,21 @@ def main():
             if "Ответить" in request.form['button']:
                 listener = request.form['button'][9:]
                 text = f"{listener},\n {request.form['answer']}"
+                print(request.files)
+                f = request.files['file']
+                t = f.read()
+                if len(t) != 0:
+                    t = base64.b64encode(t).decode('utf-8')
+                else:
+                    t = None
                 answers_dict["answers"].append({"author": current_user.login,
-                                                "text": text, "photo": None})
+                                                "text": text, "photo": t})
                 e = db_sess.query(Threads).get(number)
                 e.all_answers = json.dumps(answers_dict)
                 db_sess.add(e)
                 db_sess.commit()
-                    #json.dumps(answers_dict)
+                return redirect(url_for('the_thread',
+                                        number=number))
 
         return render_template('the_thread.html', title=name,
                                thread_head=thread_head,
