@@ -115,28 +115,45 @@ def main():
         that = db_sess.query(Threads).all()
         list_of_threads = []
         for elem in that:
+            answer = json.loads(elem.all_answers)['answers']
             photo = db_sess.query(User).filter(
                 elem.author == User.login).first().photo
             if photo:
                 f = open('static/img/profile.png', 'wb')
                 f.write(photo)
                 f.close()
-            if elem.first_answer is None:
+            if len(answer) < 1:
                 elem.first_answer = '-'
-            if elem.second_answer is None:
+            else:
+                elem.first_answer = answer[0]['text']
+            if len(answer) < 2:
                 elem.second_answer = '-'
-            if elem.third_answer is None:
+            else:
+                elem.second_answer = answer[1]['text']
+            if len(answer) < 3:
                 elem.third_answer = '-'
-            if elem.forth_answer is None:
+            else:
+                elem.third_answer = answer[2]['text']
+            if len(answer) < 4:
                 elem.forth_answer = '-'
-            if elem.first_author is None:
+            else:
+                elem.forth_answer = answer[3]['text']
+            if len(answer) < 1:
                 elem.first_author = '-'
-            if elem.second_author is None:
+            else:
+                elem.first_author = answer[0]['author']
+            if len(answer) < 2:
                 elem.second_author = '-'
-            if elem.third_author is None:
+            else:
+                elem.second_author = answer[1]['author']
+            if len(answer) < 3:
                 elem.third_author = '-'
-            if elem.forth_author is None:
+            else:
+                elem.third_author = answer[2]['author']
+            if len(answer) < 4:
                 elem.forth_author = '-'
+            else:
+                elem.forth_author = answer[3]['author']
             if db_sess.query(Threads).filter_by(title=elem.title).all()[0].photo:
                 thread_image = base64.b64encode(db_sess.query(Threads).
                                                 filter_by(title=elem.title).
@@ -204,14 +221,7 @@ def main():
                                      all_answers=json.dumps(answers))
             db_sess.add(thread_new)
             db_sess.commit()
-            conn = sqlite3.connect('db/main.db')
-            cur = conn.cursor()
-            thread_name_t = '_'.join(thread_name.split(' '))
-            q = f"CREATE TABLE IF NOT EXISTS {thread_name_t}(id INTEGER PRIMARY KEY AUTOINCREMENT," \
-                f"author STRING,text STRING,photo BLOB);"
-            cur.execute(q)
-            conn.commit()
-            return 'Форма отправлена'
+            return redirect('/threads')
         return render_template('make_thread.html', title="Создать тред")
 
     @app.route('/the_thread/<number>', methods=['GET', 'POST'])
