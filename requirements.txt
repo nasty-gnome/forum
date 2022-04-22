@@ -145,7 +145,6 @@ QDarkStyle==2.8.1
 qtconsole==5.3.0
 QtPy==2.0.1
 requests==2.27.1
-ruamel.yaml==0.15.87
 s3transfer==0.5.0
 scipy==1.8.0
 Send2Trash==1.8.0
