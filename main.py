@@ -274,9 +274,8 @@ def main():
                                profile_name=profile_name, last_threads=last_threads,
                                post=post)
 
-    if __name__ == '__main__':
-        port = int(os.environ.get("PORT", 5000))
-        app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 if __name__ == '__main__':
