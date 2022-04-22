@@ -9,12 +9,8 @@ from flask import Flask
 from flask_login import LoginManager, login_user, current_user, login_required, \
     logout_user
 from flask import render_template, request, redirect, url_for
-import sqlite3
 import base64
 import json
-from flask_login import UserMixin
-from sqlalchemy_serializer import SerializerMixin
-from data.db_session import SqlAlchemyBase
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'key'
