@@ -141,7 +141,7 @@ PyYAML==5.3.1
 pyzmq==22.3
 QDarkStyle==2.8.1
 qtconsole==5.3.0
-QtPy==1.9.0
+QtPy==2.0.1
 requests==2.27.1
 ruamel.yaml==0.15.87
 s3transfer==0.5.0
