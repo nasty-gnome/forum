@@ -34,7 +34,10 @@ def main():
                 else:
                     return redirect('/register_or_login')
             elif request.form['button'] == "Обсуждения":
-                return redirect('/threads')
+                if current_user.is_authenticated:
+                    return redirect('/threads')
+                else:
+                    return redirect('/register_or_login')
         return render_template('main_page.html', title="Главная")
 
     @app.route('/logout')
@@ -115,45 +118,38 @@ def main():
         that = db_sess.query(Threads).all()
         list_of_threads = []
         for elem in that:
-            answer = json.loads(elem.all_answers)['answers']
             photo = db_sess.query(User).filter(
                 elem.author == User.login).first().photo
             if photo:
                 f = open('static/img/profile.png', 'wb')
                 f.write(photo)
                 f.close()
-            if len(answer) < 1:
-                elem.first_answer = '-'
-            else:
-                elem.first_answer = answer[0]['text']
-            if len(answer) < 2:
-                elem.second_answer = '-'
-            else:
-                elem.second_answer = answer[1]['text']
-            if len(answer) < 3:
-                elem.third_answer = '-'
-            else:
-                elem.third_answer = answer[2]['text']
-            if len(answer) < 4:
-                elem.forth_answer = '-'
-            else:
-                elem.forth_answer = answer[3]['text']
-            if len(answer) < 1:
-                elem.first_author = '-'
-            else:
-                elem.first_author = answer[0]['author']
-            if len(answer) < 2:
-                elem.second_author = '-'
-            else:
-                elem.second_author = answer[1]['author']
-            if len(answer) < 3:
-                elem.third_author = '-'
-            else:
-                elem.third_author = answer[2]['author']
-            if len(answer) < 4:
-                elem.forth_author = '-'
-            else:
-                elem.forth_author = answer[3]['author']
+            answers_dict = json.loads(elem.all_answers)
+            thread_content = answers_dict["answers"]
+            answ1 = None
+            answ2 = None
+            answ3 = None
+            answ4 = None
+            if len(thread_content) > 0:
+                answ1 = thread_content[0]
+                answ1["avatar"] = base64.b64encode(db_sess.query(User).
+                                                   filter_by(login=answ1["author"]).
+                                                   all()[0].photo).decode('utf-8')
+            if len(thread_content) > 1:
+                answ2 = thread_content[1]
+                answ2["avatar"] = base64.b64encode(db_sess.query(User).
+                                                   filter_by(login=answ2["author"]).
+                                                   all()[0].photo).decode('utf-8')
+            if len(thread_content) > 2:
+                answ3 = thread_content[2]
+                answ3["avatar"] = base64.b64encode(db_sess.query(User).
+                                                   filter_by(login=answ3["author"]).
+                                                   all()[0].photo).decode('utf-8')
+            if len(thread_content) > 3:
+                answ4 = thread_content[3]
+                answ4["avatar"] = base64.b64encode(db_sess.query(User).
+                                                   filter_by(login=answ4["author"]).
+                                                   all()[0].photo).decode('utf-8')
             if db_sess.query(Threads).filter_by(title=elem.title).all()[0].photo:
                 thread_image = base64.b64encode(db_sess.query(Threads).
                                                 filter_by(title=elem.title).
@@ -168,18 +164,10 @@ def main():
                                     "author_name": elem.author,
                                     "thread_image": thread_image,
                                     "thread_text": elem.text,
-                                    "first_answer": {
-                                        "answerer_name": elem.first_answer,
-                                        "answer_text": elem.first_author},
-                                    "second_answer": {
-                                        "answerer_name": elem.second_answer,
-                                        "answer_text": elem.second_author},
-                                    "third_answer": {
-                                        "answerer_name": elem.third_answer,
-                                        "answer_text": elem.third_author},
-                                    "fourth_answer": {
-                                        "answerer_name": elem.forth_answer,
-                                        "answer_text": elem.forth_author}
+                                    "first_answer": answ1,
+                                    "second_answer": answ2,
+                                    "third_answer": answ3,
+                                    "fourth_answer": answ4
                                     })
         if request.method == "POST":
             if request.form['button'] == "Главная":
@@ -193,10 +181,12 @@ def main():
                     return redirect('/register_or_login')
             elif "В тред" in request.form['button']:
                 if current_user.is_authenticated:
+                    number = len(that) - int(request.form['button'][-1]) + 1
                     return redirect(url_for('the_thread',
-                                            number=request.form['button'][-1]))
+                                            number=number))
                 else:
                     return redirect('/register_or_login')
+        list_of_threads.reverse()
         return render_template('threads.html', title="Треды",
                                list_of_threads=list_of_threads)
 
@@ -247,7 +237,6 @@ def main():
             if "Ответить" in request.form['button']:
                 listener = request.form['button'][9:]
                 text = f"{listener},\n {request.form['answer']}"
-                print(request.files)
                 f = request.files['file']
                 t = f.read()
                 if len(t) != 0:
@@ -274,7 +263,7 @@ def main():
         f = open('static/img/profile.png', 'wb')
         f.write(current_user.photo)
         f.close()
-        post = "Тут какое-нибудь прозвище"
+        post = "Очередняра"
         for i in range(12):
             last_threads.append({"thread_name": "Свободное место",
                                  "thread_link": "Свободное место для ссылки"})

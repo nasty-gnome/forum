@@ -4,61 +4,52 @@ background-image: url('background.png');
 
 form.main_buttons
 {
-position: fixed;
-left: 370px;
-width: 300px;
-height: 100px;
-font-size:300%;
-margin-bottom: 50px;
-margin-left: -190px;
-}
-
-form.main_buttons button
-{
-left: 100px;
-width: 300px;
-height: 100px;
-font-size:100%;
-margin-bottom: 50px;
-margin-left: -155px;
+    position: fixed;
+    left: 0;
+    top: 45%;
+    text-align: center;
+    transform: rotate(-90deg);
+    margin-left: -12vw;
+    margin-bottom: 5vh;
 }
 
 input.puk
 {
-left: 100px;
-width: 300px;
-height: 100px;
-font-size:100%;
-margin-bottom: 50px;
-margin-left: -155px;
+font-size: 2vw;
+width: 16vw;
+height: 10vh;
+margin-bottom: 5vh;
 
 }
 
 input.thread_button
 {
-width: 100px;
-height: 50px;
-font-size:100%;
-margin-left: 10px;
+width: 6vw;
+height: 5vh;
+font-size:1vw;
+margin-left: 0.1vw;
 }
 
 form.make_thread_button
 {
-position: fixed;
-width: 300px;
-height: 100px;
-font-size:200%;
-margin-left: 1150px;
+    position: fixed;
+    top: 47%;
+    text-align: right;
+    transform: rotate(90deg);
+    margin-left: 82vw;
 }
 
 
 h1.main_text {
 color: #ffffff;
+font-size: 2.7vw;
 }
 
 h4.main_text {
 color: #f5f5f5;
-line-height: 40px;
+line-height: 4vh;
+font-size: 1vw;
+margin-left: 12vw;
 }
 
 h1.profile_text{
@@ -69,55 +60,64 @@ font-size: 300%;
 
 h1.status_text{
 color: #f5f5f5;
-margin-left: 40px;
+margin-left: 0.6vw;
 }
 
 h2.thread_name{
+font-size: 2vw;
 color: #78DBE2;
 background-color: #161a1e
 }
 
 div.author_signature{
+font-size: 1.3vw;
 color: #f5f5f5;
 background-color: #4285B4
 }
 
 div.answerer_signature{
+font-size: 1.3vw;
 color: #FFFFF0;
 background-color: #333333
 }
 
 div.thread_text{
+font-size: 1vw;
 color: #f5f5f5;
 background-color: #1c1c1c;
-margin-left: 60px;
+margin-left: 0.8vw;
+display: flex;
 }
 
 div.answer_text{
+font-size: 1vw;
 color: #FFFFF0;
 background-color: #1e1e1e;
-margin-left: 60px;
+margin-left: 0.8vw;
+display: flex;
 }
 
 
 IMG.logo {
     float: left; /* Обтекание картинки по левому краю */
     width: 50px;
-    margin-right: 10px;
+    margin-left: 0.2vw;
     }
 
 IMG.main_image {
      display: block;
   margin-left: auto;
   margin-right: auto;
+  width: 60vw;
+  height: 62vh
     }
 
 IMG.profile_image {
      display: block;
-  margin-left: -10px;
+  margin-left: -0.5vw;
   margin-right: auto;
-  width: 620px;
-  height: 620px;
+  width: 70vh;
+  height: 70vh;
     }
 
 IMG.author_image {
